@@ -4,21 +4,25 @@ import { ScrapeControls } from '@/components/ScrapeControls';
 
 export default function ScrapePage() {
   return (
-    <div className="min-h-screen bg-[#0F172A]">
-      <header className="flex items-center gap-4 px-6 py-4 border-b border-slate-700 bg-[#1E293B]">
-        <Link href="/" className="text-slate-400 hover:text-slate-200 transition-colors">
-          <ArrowLeft size={18} />
-        </Link>
-        <div className="flex items-center gap-2">
-          <Zap size={18} className="text-blue-400" />
-          <h1 className="font-semibold text-slate-100">Scrape New Leads</h1>
+    <div className="min-h-screen bg-[#ECEEE8]">
+      <header className="bg-white border-b border-[#E8EAE4] shadow-sm">
+        <div className="max-w-2xl mx-auto px-6 py-4 flex items-center gap-3">
+          <Link href="/" className="w-8 h-8 rounded-xl bg-[#F8F9F6] hover:bg-[#F0F1ED] border border-[#E8EAE4] flex items-center justify-center text-[#6B7280] hover:text-[#374151] transition-all">
+            <ArrowLeft size={15} />
+          </Link>
+          <div className="w-8 h-8 rounded-xl bg-[#EBF0FD] flex items-center justify-center">
+            <Zap size={15} className="text-[#3462EE]" />
+          </div>
+          <div>
+            <h1 className="font-semibold text-[#121721] text-sm">Scrape New Leads</h1>
+            <p className="text-xs text-[#9CA3AF]">LinkedIn · Qatar</p>
+          </div>
         </div>
       </header>
 
       <main className="max-w-2xl mx-auto px-6 py-8">
-        <p className="text-sm text-slate-400 mb-8">
-          Pull qualified leads from LinkedIn for Qatar. Leads are automatically enriched with company info via Firecrawl.
-          Duplicates are skipped automatically.
+        <p className="text-sm text-[#6B7280] mb-8 bg-white rounded-xl border border-[#E8EAE4] px-4 py-3 shadow-sm">
+          Pulls qualified leads from LinkedIn and automatically enriches each one with company intel via Firecrawl. Duplicates are skipped.
         </p>
         <ScrapeControls />
       </main>
