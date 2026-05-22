@@ -94,17 +94,18 @@ export function LeadPanel({ leadId, onClose, onStatusChange }: LeadPanelProps) {
       <div className="glass-panel rounded-3xl flex flex-col h-full overflow-hidden">
         {/* Header */}
         <div className="px-6 pt-6 pb-5 border-b border-white/40">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full bg-[#0F1623] text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="w-14 h-14 rounded-2xl bg-[#0F1623] text-white flex items-center justify-center font-bold text-base flex-shrink-0">
                 {getInitials(lead.full_name)}
               </div>
-              <div>
-                <h2 className="font-semibold text-slate-800 text-base leading-tight">{lead.full_name ?? 'Unknown'}</h2>
-                <p className="text-xs text-slate-500 font-light mt-0.5">{[lead.title, lead.company].filter(Boolean).join(' · ')}</p>
+              <div className="min-w-0">
+                <h2 className="font-semibold text-slate-800 text-lg leading-tight truncate">{lead.full_name ?? 'Unknown'}</h2>
+                <p className="text-sm text-slate-500 font-light mt-0.5 truncate">{lead.title ?? '—'}</p>
+                {lead.company && <p className="text-xs text-[#3462EE] font-medium mt-0.5 truncate">{lead.company}</p>}
               </div>
             </div>
-            <div className="flex items-center gap-1 ml-2">
+            <div className="flex items-center gap-1 flex-shrink-0">
               {lead.linkedin_url && (
                 <a href={lead.linkedin_url} target="_blank" rel="noopener noreferrer"
                   className="w-7 h-7 glass rounded-xl flex items-center justify-center text-slate-500 hover:text-[#3462EE] transition-colors">
@@ -125,16 +126,30 @@ export function LeadPanel({ leadId, onClose, onStatusChange }: LeadPanelProps) {
           </div>
 
           {(lead.email || lead.phone) && (
-            <div className="flex gap-4 mt-3">
-              {lead.email && (
-                <span className="flex items-center gap-1.5 text-xs text-slate-400 font-light">
-                  <Mail size={11} className="text-slate-300" /> {lead.email}
-                </span>
-              )}
+            <div className="grid grid-cols-2 gap-2 mt-4">
               {lead.phone && (
-                <span className="flex items-center gap-1.5 text-xs text-slate-400 font-light">
-                  <Phone size={11} className="text-slate-300" /> {lead.phone}
-                </span>
+                <a href={`tel:${lead.phone}`}
+                  className="flex items-center gap-2.5 glass rounded-2xl px-4 py-3 hover:bg-white/60 transition-all group">
+                  <div className="w-7 h-7 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                    <Phone size={12} className="text-emerald-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">Phone</p>
+                    <p className="text-xs text-slate-700 font-semibold truncate group-hover:text-emerald-700 transition-colors">{lead.phone}</p>
+                  </div>
+                </a>
+              )}
+              {lead.email && (
+                <a href={`mailto:${lead.email}`}
+                  className="flex items-center gap-2.5 glass rounded-2xl px-4 py-3 hover:bg-white/60 transition-all group">
+                  <div className="w-7 h-7 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
+                    <Mail size={12} className="text-blue-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">Email</p>
+                    <p className="text-xs text-slate-700 font-semibold truncate group-hover:text-blue-700 transition-colors">{lead.email}</p>
+                  </div>
+                </a>
               )}
             </div>
           )}
@@ -143,11 +158,11 @@ export function LeadPanel({ leadId, onClose, onStatusChange }: LeadPanelProps) {
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
           {/* Status */}
           <div>
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-3">Status</p>
-            <div className="flex flex-wrap gap-1.5">
+            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-3">Update Status</p>
+            <div className="grid grid-cols-3 gap-2">
               {STATUSES.map((s) => (
                 <button key={s} onClick={() => handleStatusChange(s)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                  className={`px-3 py-2.5 rounded-2xl text-xs font-semibold border transition-all text-center ${
                     lead.status === s
                       ? statusActive[s]
                       : 'glass text-slate-500 hover:bg-white/60 hover:text-slate-700'
@@ -218,7 +233,7 @@ export function LeadPanel({ leadId, onClose, onStatusChange }: LeadPanelProps) {
             value={noteText}
             onChange={(e) => setNoteText(e.target.value)}
             placeholder="Log a call note..."
-            rows={3}
+            rows={4}
             className="w-full bg-white/50 border border-white/60 rounded-2xl px-4 py-3 text-sm text-slate-700 placeholder-slate-300 resize-none focus:outline-none focus:ring-2 focus:ring-[#3462EE]/20 focus:border-[#3462EE]/40 transition-all backdrop-blur-sm font-light"
             onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleAddNote(); }}
           />

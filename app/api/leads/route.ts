@@ -26,6 +26,14 @@ export async function GET(req: NextRequest) {
     query = query.or(`full_name.ilike.%${search}%,company.ilike.%${search}%`);
   }
 
+  if (searchParams.get('has_phone') === 'true') {
+    query = query.not('phone', 'is', null);
+  }
+
+  if (searchParams.get('enriched') === 'true') {
+    query = query.not('company_summary', 'is', null);
+  }
+
   if (!countOnly) {
     query = query.order('created_at', { ascending: false });
   }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Search, RefreshCw, Users, Zap, Calendar, PhoneCall, TrendingUp, CalendarCheck } from 'lucide-react';
+import { Search, RefreshCw, Users, Zap, Calendar, PhoneCall, TrendingUp, CalendarCheck, Phone, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { LeadsTable } from '@/components/LeadsTable';
@@ -21,6 +21,8 @@ export default function CRMDashboard() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('All');
   const [search, setSearch] = useState('');
+  const [hasPhone, setHasPhone] = useState(false);
+  const [enriched, setEnriched] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [calendarConnected, setCalendarConnected] = useState<boolean | null>(null);
 
@@ -29,10 +31,12 @@ export default function CRMDashboard() {
     const params = new URLSearchParams();
     if (activeTab !== 'All') params.set('status', activeTab);
     if (search) params.set('search', search);
+    if (hasPhone) params.set('has_phone', 'true');
+    if (enriched) params.set('enriched', 'true');
     const res = await fetch(`/api/leads?${params}`);
     if (res.ok) { const { leads: d } = await res.json(); setLeads(d ?? []); }
     setLoading(false);
-  }, [activeTab, search]);
+  }, [activeTab, search, hasPhone, enriched]);
 
   useEffect(() => { fetch('/api/leads').then(r => r.json()).then(d => setAllLeads(d.leads ?? [])); }, []);
   useEffect(() => { fetchLeads(); }, [fetchLeads]);
@@ -177,6 +181,26 @@ export default function CRMDashboard() {
                 {tab}
               </button>
             ))}
+
+            <div className="w-px h-4 bg-white/40 mx-1 flex-shrink-0" />
+
+            <button onClick={() => setHasPhone(p => !p)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap border transition-all ${
+                hasPhone
+                  ? 'bg-emerald-500 text-white border-emerald-500 shadow-sm'
+                  : 'text-slate-500 border-transparent hover:bg-white/40 hover:text-slate-700'
+              }`}>
+              <Phone size={10} /> Has Number
+            </button>
+
+            <button onClick={() => setEnriched(p => !p)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap border transition-all ${
+                enriched
+                  ? 'bg-[#3462EE] text-white border-[#3462EE] shadow-sm'
+                  : 'text-slate-500 border-transparent hover:bg-white/40 hover:text-slate-700'
+              }`}>
+              <Sparkles size={10} /> Enriched
+            </button>
           </div>
 
           {/* Table body */}
@@ -195,7 +219,7 @@ export default function CRMDashboard() {
 
         {/* Lead panel */}
         {selectedId && (
-          <div className="w-[400px] flex-shrink-0 overflow-hidden flex flex-col">
+          <div className="w-[540px] flex-shrink-0 overflow-hidden flex flex-col">
             <LeadPanel key={selectedId} leadId={selectedId}
               onClose={() => setSelectedId(null)} onStatusChange={handleStatusChange} />
           </div>
