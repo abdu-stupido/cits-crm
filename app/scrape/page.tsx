@@ -4,28 +4,28 @@ import { ScrapeControls } from '@/components/ScrapeControls';
 
 export default function ScrapePage() {
   return (
-    <div className="min-h-screen bg-[#ECEEE8]">
-      <header className="bg-white border-b border-[#E8EAE4] shadow-sm">
-        <div className="max-w-2xl mx-auto px-6 py-4 flex items-center gap-3">
-          <Link href="/" className="w-8 h-8 rounded-xl bg-[#F8F9F6] hover:bg-[#F0F1ED] border border-[#E8EAE4] flex items-center justify-center text-[#6B7280] hover:text-[#374151] transition-all">
-            <ArrowLeft size={15} />
+    <div className="min-h-screen p-6">
+      <div className="max-w-2xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="glass-strong rounded-3xl px-6 py-4 flex items-center gap-3">
+          <Link href="/" className="w-8 h-8 glass rounded-2xl flex items-center justify-center text-slate-500 hover:text-slate-700 transition-colors">
+            <ArrowLeft size={14} />
           </Link>
-          <div className="w-8 h-8 rounded-xl bg-[#EBF0FD] flex items-center justify-center">
-            <Zap size={15} className="text-[#3462EE]" />
+          <div className="w-8 h-8 rounded-2xl bg-[#3462EE] flex items-center justify-center">
+            <Zap size={14} className="text-white" />
           </div>
           <div>
-            <h1 className="font-semibold text-[#121721] text-sm">Scrape New Leads</h1>
-            <p className="text-xs text-[#9CA3AF]">LinkedIn · Qatar</p>
+            <h1 className="font-semibold text-slate-800 text-sm">Scrape New Leads</h1>
+            <p className="text-[10px] text-slate-400 font-light">LinkedIn · Qatar</p>
           </div>
         </div>
-      </header>
 
-      <main className="max-w-2xl mx-auto px-6 py-8">
-        <p className="text-sm text-[#6B7280] mb-8 bg-white rounded-xl border border-[#E8EAE4] px-4 py-3 shadow-sm">
-          Pulls qualified leads from LinkedIn and automatically enriches each one with company intel via Firecrawl. Duplicates are skipped.
+        <p className="text-sm text-slate-500 font-light glass rounded-2xl px-5 py-3.5">
+          Pulls qualified leads from LinkedIn and automatically enriches each one with company intel via Firecrawl. Duplicates are skipped automatically.
         </p>
+
         <ScrapeControls />
-      </main>
+      </div>
     </div>
   );
 }
