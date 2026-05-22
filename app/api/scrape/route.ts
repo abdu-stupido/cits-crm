@@ -45,20 +45,22 @@ export async function POST(req: NextRequest) {
         if (byPhone) { skipped++; continue; }
       }
 
-      const firstEmail = place.emails?.[0] ?? null;
+      const s = (v: string | null | undefined) => v?.trim() || null;
+
+      const firstEmail = s(place.emails?.[0]);
 
       const { data: inserted, error } = await supabaseAdmin
         .from('leads')
         .insert({
-          full_name: place.title,           // business name as the primary contact label
+          full_name: place.title,
           company: place.title,
-          title: place.categoryName ?? null,
-          industry: place.categoryName ?? null,
-          phone: place.phone ?? place.phoneUnformatted ?? null,
+          title: s(place.categoryName),
+          industry: s(place.categoryName),
+          phone: s(place.phone) ?? s(place.phoneUnformatted),
           email: firstEmail,
-          company_website: place.website ?? null,
-          linkedin_url: mapsUrl,            // repurposed as Maps URL for dedup
-          location: place.address ?? location,
+          company_website: s(place.website),
+          linkedin_url: mapsUrl,
+          location: s(place.address) ?? location,
         })
         .select()
         .single();

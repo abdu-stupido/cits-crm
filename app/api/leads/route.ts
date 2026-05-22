@@ -27,11 +27,11 @@ export async function GET(req: NextRequest) {
   }
 
   if (searchParams.get('has_phone') === 'true') {
-    query = query.not('phone', 'is', null);
+    query = query.not('phone', 'is', null).neq('phone', '');
   }
 
   if (searchParams.get('enriched') === 'true') {
-    query = query.not('company_summary', 'is', null);
+    query = query.not('company_summary', 'is', null).neq('company_summary', '');
   }
 
   if (!countOnly) {
