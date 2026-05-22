@@ -45,6 +45,7 @@ export function LeadPanel({ leadId, onClose, onStatusChange }: LeadPanelProps) {
   const [loading, setLoading] = useState(true);
   const [noteText, setNoteText] = useState('');
   const [savingNote, setSavingNote] = useState(false);
+  const [showNotepad, setShowNotepad] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
 
   const fetchLead = useCallback(async () => {
@@ -72,7 +73,7 @@ export function LeadPanel({ leadId, onClose, onStatusChange }: LeadPanelProps) {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ lead_id: lead.id, note: noteText }),
     });
-    if (res.ok) { const { note } = await res.json(); setNotes(p => [...p, note]); setNoteText(''); toast.success('Note saved'); }
+    if (res.ok) { const { note } = await res.json(); setNotes(p => [...p, note]); setNoteText(''); setShowNotepad(false); toast.success('Note saved'); }
     setSavingNote(false);
   }
 
@@ -220,31 +221,43 @@ export function LeadPanel({ leadId, onClose, onStatusChange }: LeadPanelProps) {
 
           {/* Call log */}
           <div>
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-3">
-              Call Log {notes.length > 0 && <span className="ml-1 normal-case font-normal text-slate-300">({notes.length})</span>}
-            </p>
-            <NotesList notes={notes} />
-          </div>
-        </div>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
+                Call Log {notes.length > 0 && <span className="ml-1 normal-case font-normal text-slate-300">({notes.length})</span>}
+              </p>
+              {!showNotepad && (
+                <button onClick={() => setShowNotepad(true)}
+                  className="px-3 py-1 bg-[#0F1623] hover:bg-slate-700 text-white text-[10px] font-medium rounded-xl transition-all">
+                  + Add Note
+                </button>
+              )}
+            </div>
 
-        {/* Add note */}
-        <div className="px-5 py-4 border-t border-white/40 bg-white/20">
-          <textarea
-            value={noteText}
-            onChange={(e) => setNoteText(e.target.value)}
-            placeholder="Log a call note..."
-            rows={4}
-            className="w-full bg-white/50 border border-white/60 rounded-2xl px-4 py-3 text-sm text-slate-700 placeholder-slate-300 resize-none focus:outline-none focus:ring-2 focus:ring-[#3462EE]/20 focus:border-[#3462EE]/40 transition-all backdrop-blur-sm font-light"
-            onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleAddNote(); }}
-          />
-          <div className="flex justify-between items-center mt-2.5">
-            <span className="text-[10px] text-slate-300 font-light">⌘ + Enter to save</span>
-            <button
-              onClick={handleAddNote}
-              disabled={!noteText.trim() || savingNote}
-              className="px-4 py-1.5 bg-[#0F1623] hover:bg-slate-700 disabled:opacity-30 text-white text-xs font-medium rounded-xl transition-all">
-              {savingNote ? 'Saving...' : 'Add Note'}
-            </button>
+            {showNotepad && (
+              <div className="mb-4">
+                <textarea
+                  autoFocus
+                  value={noteText}
+                  onChange={(e) => setNoteText(e.target.value)}
+                  placeholder="Log a call note..."
+                  rows={4}
+                  className="w-full bg-white/50 border border-white/60 rounded-2xl px-4 py-3 text-sm text-slate-700 placeholder-slate-300 resize-none focus:outline-none focus:ring-2 focus:ring-[#3462EE]/20 focus:border-[#3462EE]/40 transition-all backdrop-blur-sm font-light"
+                  onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleAddNote(); }}
+                />
+                <div className="flex justify-between items-center mt-2">
+                  <button onClick={() => { setShowNotepad(false); setNoteText(''); }}
+                    className="text-xs text-slate-400 hover:text-slate-600 transition-colors">
+                    Cancel
+                  </button>
+                  <button onClick={handleAddNote} disabled={!noteText.trim() || savingNote}
+                    className="px-4 py-1.5 bg-[#0F1623] hover:bg-slate-700 disabled:opacity-30 text-white text-xs font-medium rounded-xl transition-all">
+                    {savingNote ? 'Saving...' : 'Save Note'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <NotesList notes={notes} />
           </div>
         </div>
       </div>
