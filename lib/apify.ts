@@ -2,39 +2,42 @@ import { ApifyClient } from 'apify-client';
 
 const client = new ApifyClient({ token: process.env.APIFY_API_KEY });
 
-export interface ApifyLead {
-  fullName?: string;
-  firstName?: string;
-  lastName?: string;
-  headline?: string;
-  location?: string;
-  profileUrl?: string;
-  companyName?: string;
-  companyWebsite?: string;
-  email?: string;
+export interface GoogleMapsPlace {
+  title?: string;
+  categoryName?: string;
+  address?: string;
   phone?: string;
+  phoneUnformatted?: string;
+  website?: string;
+  url?: string;           // Google Maps URL
+  emails?: string[];
+  permanentlyClosed?: boolean;
 }
 
-export async function scrapeLinkedInLeads(
+export async function scrapeGoogleMapsLeads(
   count: number,
-  industries: string[],
-  jobTitles: string[]
-): Promise<ApifyLead[]> {
-  const titleQuery = jobTitles.join(' OR ');
-  const industryQuery = industries.length > 0 ? industries.join(' OR ') : '';
-
+  searchQueries: string[],
+  location: string = 'Qatar'
+): Promise<GoogleMapsPlace[]> {
   const input = {
-    searchQueries: [
-      `(${titleQuery}) ${industryQuery} Qatar`.trim(),
-    ],
-    maxResults: count,
-    country: 'QA',
+    includeWebResults: false,
+    language: 'en',
+    locationQuery: location,
+    maxCrawledPlacesPerSearch: Math.ceil(count / searchQueries.length),
+    maxImages: 0,
+    scrapeContacts: true,
+    scrapeDirectories: false,
+    scrapeImageAuthors: false,
+    scrapeOrderOnline: false,
+    scrapePlaceDetailPage: false,
+    scrapeReviewsPersonalData: false,
+    scrapeTableReservationProvider: false,
+    searchStringsArray: searchQueries,
+    skipClosedPlaces: true,
+    verifyLeadsEnrichmentEmails: false,
   };
 
-  const run = await client.actor('bebity/linkedin-people-search-scraper').call(input, {
-    waitSecs: 300,
-  });
-
+  const run = await client.actor('nwua9Gu5YrADL7ZDj').call(input, { waitSecs: 300 });
   const { items } = await client.dataset(run.defaultDatasetId).listItems();
-  return items as ApifyLead[];
+  return items as GoogleMapsPlace[];
 }
