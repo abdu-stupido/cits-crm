@@ -165,8 +165,10 @@ export function LeadPanel({ leadId, onClose, onStatusChange }: LeadPanelProps) {
               <div className="glass rounded-2xl p-4">
                 <p className="text-sm text-slate-600 leading-relaxed font-light">{lead.company_summary}</p>
               </div>
-            ) : lead.enriched_at ? (
-              <p className="text-sm text-slate-400 italic">No summary extracted.</p>
+            ) : lead.enriched_at || !lead.company_website ? (
+              <p className="text-sm text-slate-400 italic">
+                {!lead.company_website ? 'No website on file — enrichment unavailable.' : 'No summary extracted.'}
+              </p>
             ) : (
               <div className="flex items-center gap-2.5 text-sm text-slate-400 glass rounded-2xl p-3.5">
                 <div className="w-3 h-3 rounded-full border-2 border-[#4A91A8] border-t-transparent animate-spin flex-shrink-0" />
