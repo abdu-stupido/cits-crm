@@ -30,6 +30,10 @@ export async function GET(req: NextRequest) {
     query = query.not('phone', 'is', null).neq('phone', '');
   }
 
+  if (searchParams.get('has_email') === 'true') {
+    query = query.not('email', 'is', null).neq('email', '');
+  }
+
   if (searchParams.get('enriched') === 'true') {
     query = query.not('company_summary', 'is', null).neq('company_summary', '');
   }

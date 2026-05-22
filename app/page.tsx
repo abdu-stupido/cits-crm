@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Search, RefreshCw, Users, Zap, Calendar, PhoneCall, TrendingUp, CalendarCheck, Phone, Sparkles } from 'lucide-react';
+import { Search, RefreshCw, Users, Zap, Calendar, PhoneCall, TrendingUp, CalendarCheck, Phone, Mail, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { LeadsTable } from '@/components/LeadsTable';
@@ -22,6 +22,7 @@ export default function CRMDashboard() {
   const [activeTab, setActiveTab] = useState('All');
   const [search, setSearch] = useState('');
   const [hasPhone, setHasPhone] = useState(false);
+  const [hasEmail, setHasEmail] = useState(false);
   const [enriched, setEnriched] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [calendarConnected, setCalendarConnected] = useState<boolean | null>(null);
@@ -32,11 +33,12 @@ export default function CRMDashboard() {
     if (activeTab !== 'All') params.set('status', activeTab);
     if (search) params.set('search', search);
     if (hasPhone) params.set('has_phone', 'true');
+    if (hasEmail) params.set('has_email', 'true');
     if (enriched) params.set('enriched', 'true');
     const res = await fetch(`/api/leads?${params}`);
     if (res.ok) { const { leads: d } = await res.json(); setLeads(d ?? []); }
     setLoading(false);
-  }, [activeTab, search, hasPhone, enriched]);
+  }, [activeTab, search, hasPhone, hasEmail, enriched]);
 
   useEffect(() => { fetch('/api/leads').then(r => r.json()).then(d => setAllLeads(d.leads ?? [])); }, []);
   useEffect(() => { fetchLeads(); }, [fetchLeads]);
@@ -191,6 +193,15 @@ export default function CRMDashboard() {
                   : 'text-slate-500 border-transparent hover:bg-white/40 hover:text-slate-700'
               }`}>
               <Phone size={10} /> Has Number
+            </button>
+
+            <button onClick={() => setHasEmail(p => !p)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap border transition-all ${
+                hasEmail
+                  ? 'bg-violet-500 text-white border-violet-500 shadow-sm'
+                  : 'text-slate-500 border-transparent hover:bg-white/40 hover:text-slate-700'
+              }`}>
+              <Mail size={10} /> Has Email
             </button>
 
             <button onClick={() => setEnriched(p => !p)}
