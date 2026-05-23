@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { scrapeGoogleMapsLeads } from '@/lib/apify';
-import { enrichCompanyWebsite } from '@/lib/firecrawl';
 
 const DEFAULT_QUERIES = [
   'IT company',
@@ -67,18 +66,6 @@ export async function POST(req: NextRequest) {
 
       if (error || !inserted) { skipped++; continue; }
       scraped++;
-
-      // Enrich via Firecrawl if website available
-      if (place.website) {
-        const summary = await enrichCompanyWebsite(place.website);
-        if (summary) {
-          await supabaseAdmin
-            .from('leads')
-            .update({ company_summary: summary, enriched_at: new Date().toISOString() })
-            .eq('id', inserted.id);
-          enriched++;
-        }
-      }
     }
 
     return NextResponse.json({ scraped, enriched, skipped });

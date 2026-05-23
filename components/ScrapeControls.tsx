@@ -32,6 +32,7 @@ export function ScrapeControls() {
   const [location, setLocation] = useState('Qatar');
   const [quantity, setQuantity] = useState(50);
   const [loading, setLoading] = useState(false);
+  const [enriching, setEnriching] = useState(false);
   const [history, setHistory] = useState<ScrapeResult[]>([]);
 
   function toggleQuery(q: string) {
@@ -57,10 +58,22 @@ export function ScrapeControls() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setHistory(prev => [{
-        scraped: data.scraped, enriched: data.enriched, skipped: data.skipped,
+        scraped: data.scraped, enriched: 0, skipped: data.skipped,
         timestamp: new Date().toLocaleString(),
       }, ...prev].slice(0, 5));
-      toast.success(`Scraped ${data.scraped} leads, enriched ${data.enriched}`);
+      toast.success(`Scraped ${data.scraped} leads — enriching websites in background...`);
+
+      // Fire enrichment separately so it doesn't block the scrape response
+      setEnriching(true);
+      fetch('/api/enrich', { method: 'POST' })
+        .then(r => r.json())
+        .then(d => {
+          if (d.enriched > 0) toast.success(`Enriched ${d.enriched} companies with Firecrawl`);
+          setHistory(prev => prev.map((h, i) => i === 0 ? { ...h, enriched: d.enriched } : h));
+        })
+        .catch(() => {})
+        .finally(() => setEnriching(false));
+
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Scrape failed');
     } finally {
@@ -182,7 +195,10 @@ export function ScrapeControls() {
                 <div className="flex items-center gap-2.5">
                   <CheckCircle2 size={14} className="text-emerald-500" />
                   <span className="text-sm font-semibold text-slate-700">{h.scraped} added</span>
-                  <span className="text-xs text-slate-400 font-light">· {h.enriched} enriched · {h.skipped} skipped</span>
+                  {i === 0 && enriching
+                    ? <span className="flex items-center gap-1 text-xs text-[#4A91A8] font-light"><Loader2 size={10} className="animate-spin" /> enriching...</span>
+                    : <span className="text-xs text-slate-400 font-light">· {h.enriched} enriched · {h.skipped} skipped</span>
+                  }
                 </div>
                 <span className="text-xs text-slate-300 font-light">{h.timestamp}</span>
               </div>
