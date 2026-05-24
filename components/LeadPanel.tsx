@@ -176,19 +176,38 @@ export function LeadPanel({ leadId, onClose, onStatusChange }: LeadPanelProps) {
 
           {/* Company intel */}
           <div>
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-3">Company Intel</p>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Sales Brief</p>
+              {lead.company_website && (
+                <a href={lead.company_website} target="_blank" rel="noopener noreferrer"
+                  className="text-[10px] text-slate-400 hover:text-[#3462EE] transition-colors flex items-center gap-1">
+                  <Globe size={9} /> {new URL(lead.company_website.startsWith('http') ? lead.company_website : `https://${lead.company_website}`).hostname}
+                </a>
+              )}
+            </div>
             {lead.company_summary ? (
-              <div className="glass rounded-2xl p-4">
-                <p className="text-sm text-slate-600 leading-relaxed font-light">{lead.company_summary}</p>
+              <div className="rounded-2xl overflow-hidden border border-white/50">
+                <div className="bg-[#0F1623]/5 px-4 py-2 border-b border-white/40 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">AI-Generated · Pre-call Research</span>
+                </div>
+                <div className="glass p-4">
+                  <p className="text-sm text-slate-700 leading-relaxed">{lead.company_summary}</p>
+                </div>
               </div>
             ) : lead.enriched_at || !lead.company_website ? (
-              <p className="text-sm text-slate-400 italic">
-                {!lead.company_website ? 'No website on file — enrichment unavailable.' : 'No summary extracted.'}
-              </p>
+              <div className="glass rounded-2xl p-4 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+                  <Globe size={13} className="text-slate-400" />
+                </div>
+                <p className="text-xs text-slate-400">
+                  {!lead.company_website ? 'No website — brief unavailable.' : 'Website scraped but no content extracted.'}
+                </p>
+              </div>
             ) : (
-              <div className="flex items-center gap-2.5 text-sm text-slate-400 glass rounded-2xl p-3.5">
+              <div className="flex items-center gap-2.5 glass rounded-2xl p-4">
                 <div className="w-3 h-3 rounded-full border-2 border-[#4A91A8] border-t-transparent animate-spin flex-shrink-0" />
-                <span className="text-xs">Enriching company data...</span>
+                <span className="text-xs text-slate-400">Generating sales brief...</span>
               </div>
             )}
           </div>
