@@ -1,8 +1,6 @@
-const FIRECRAWL_URL = 'https://api.firecrawl.dev/v1';
-
 export async function enrichCompanyWebsite(url: string): Promise<string | null> {
   try {
-    const res = await fetch(`${FIRECRAWL_URL}/scrape`, {
+    const res = await fetch('https://api.firecrawl.dev/v2/scrape', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${process.env.FIRECRAWL_API_KEY}`,
@@ -12,7 +10,6 @@ export async function enrichCompanyWebsite(url: string): Promise<string | null> 
         url,
         formats: ['markdown'],
         onlyMainContent: true,
-        maxDepth: 0,
       }),
     });
 
