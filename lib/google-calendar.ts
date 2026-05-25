@@ -90,11 +90,13 @@ export async function getAvailableSlots(days = 7): Promise<TimeSlot[]> {
   cursor.setHours(cursor.getHours() + 1);
 
   while (cursor < new Date(timeMax)) {
-    const dayOfWeek = cursor.getDay();
-    const hour = cursor.getHours();
+    // Convert to Qatar time (UTC+3) for day/hour checks
+    const gst = new Date(cursor.getTime() + 3 * 60 * 60 * 1000);
+    const dayOfWeek = gst.getUTCDay(); // 0=Sun, 5=Fri, 6=Sat
+    const hour = gst.getUTCHours();
 
-    // Business hours Mon-Fri 9am-6pm GST (UTC+3)
-    if (dayOfWeek !== 0 && dayOfWeek !== 6 && hour >= 9 && hour < 18) {
+    // Business hours Sun-Thu 9am-6pm GST (Qatar work week)
+    if (dayOfWeek !== 5 && dayOfWeek !== 6 && hour >= 9 && hour < 18) {
       const slotEnd = new Date(cursor.getTime() + 30 * 60 * 1000);
 
       const isBusy = busySlots.some((busy) => {
