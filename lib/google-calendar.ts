@@ -63,15 +63,15 @@ export interface TimeSlot {
   label: string;
 }
 
-export async function getAvailableSlots(days = 7): Promise<TimeSlot[]> {
+export async function getAvailableSlots(days = 7, offsetDays = 0): Promise<TimeSlot[]> {
   const auth = await getAuthorizedClient();
   if (!auth) return [];
 
   const calendar = google.calendar({ version: 'v3', auth });
 
   const now = new Date();
-  const timeMin = now.toISOString();
-  const timeMax = new Date(now.getTime() + days * 24 * 60 * 60 * 1000).toISOString();
+  const timeMin = new Date(now.getTime() + offsetDays * 24 * 60 * 60 * 1000).toISOString();
+  const timeMax = new Date(now.getTime() + (offsetDays + days) * 24 * 60 * 60 * 1000).toISOString();
 
   const freeBusy = await calendar.freebusy.query({
     requestBody: {
@@ -85,9 +85,9 @@ export async function getAvailableSlots(days = 7): Promise<TimeSlot[]> {
   const busySlots = freeBusy.data.calendars?.primary?.busy ?? [];
 
   const slots: TimeSlot[] = [];
-  const cursor = new Date(now);
+  const cursor = new Date(timeMin);
   cursor.setMinutes(0, 0, 0);
-  cursor.setHours(cursor.getHours() + 1);
+  if (offsetDays === 0) cursor.setHours(cursor.getHours() + 1);
 
   while (cursor < new Date(timeMax)) {
     // Convert to Qatar time (UTC+3) for day/hour checks

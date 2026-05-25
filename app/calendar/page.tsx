@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Calendar, CheckCircle2, AlertCircle } from 'lucide-react';
-import { format } from 'date-fns';
+import { ArrowLeft, ArrowRight, Calendar, CheckCircle2, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { format, addDays } from 'date-fns';
 
 interface TimeSlot { start: string; end: string; label: string; }
 
@@ -12,16 +12,38 @@ export default function CalendarPage() {
   const [connected, setConnected] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [offsetDays, setOffsetDays] = useState(0);
+
+  const fetchSlots = useCallback(async (offset: number) => {
+    setLoading(true);
+    setError(null);
+    const res = await fetch(`/api/calendar/slots?days=7&offset=${offset}`);
+    if (res.status === 401) { setConnected(false); setLoading(false); return; }
+    if (res.ok) {
+      const { slots: d } = await res.json();
+      setSlots(d ?? []);
+      setConnected(true);
+    } else {
+      setError('Failed to load slots.');
+    }
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('error')) setError('Authentication failed. Please try again.');
-    fetch('/api/calendar/slots?days=7').then(async res => {
-      if (res.ok) { const { slots: d } = await res.json(); setSlots(d ?? []); setConnected(true); }
-      else setConnected(false);
-      setLoading(false);
-    });
-  }, []);
+    fetchSlots(0);
+  }, [fetchSlots]);
+
+  const handleWeekChange = (dir: number) => {
+    const next = offsetDays + dir * 7;
+    if (next < 0) return;
+    setOffsetDays(next);
+    fetchSlots(next);
+  };
+
+  const weekStart = addDays(new Date(), offsetDays);
+  const weekEnd = addDays(new Date(), offsetDays + 6);
 
   const slotsByDay: Record<string, TimeSlot[]> = {};
   slots.forEach(s => {
@@ -60,7 +82,7 @@ export default function CalendarPage() {
                   <p className="text-xs text-slate-400 font-light mt-0.5">Meetings can be booked directly from lead profiles</p>
                 </div>
               </>
-            ) : (
+            ) : connected === false ? (
               <>
                 <div className="w-10 h-10 rounded-2xl glass flex items-center justify-center flex-shrink-0">
                   <AlertCircle size={18} className="text-slate-400" />
@@ -74,7 +96,7 @@ export default function CalendarPage() {
                   Connect
                 </a>
               </>
-            )}
+            ) : null}
           </div>
         </div>
 
@@ -87,14 +109,38 @@ export default function CalendarPage() {
         {/* Slots */}
         {connected && (
           <div>
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-4 px-1">Available Slots — Next 7 Days (GST)</p>
+            {/* Week navigation */}
+            <div className="flex items-center justify-between mb-4 px-1">
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
+                {format(weekStart, 'MMM d')} — {format(weekEnd, 'MMM d, yyyy')} · GST
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleWeekChange(-1)}
+                  disabled={offsetDays === 0}
+                  className="w-7 h-7 glass rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ChevronLeft size={14} />
+                </button>
+                <button
+                  onClick={() => handleWeekChange(1)}
+                  className="w-7 h-7 glass rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-700 transition-colors"
+                >
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+            </div>
+
             {loading ? (
               <div className="space-y-3">
                 {[...Array(3)].map((_, i) => <div key={i} className="h-24 glass rounded-3xl animate-pulse" />)}
               </div>
             ) : Object.keys(slotsByDay).length === 0 ? (
               <div className="glass rounded-3xl p-8 text-center">
-                <p className="text-slate-400 text-sm">No available slots in the next 7 days</p>
+                <p className="text-slate-400 text-sm">No available slots this week</p>
+                <button onClick={() => handleWeekChange(1)} className="mt-3 text-[#3462EE] text-xs font-semibold flex items-center gap-1 mx-auto">
+                  Check next week <ArrowRight size={12} />
+                </button>
               </div>
             ) : (
               <div className="space-y-3">
